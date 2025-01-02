@@ -119,3 +119,32 @@ table tr:hover {
     border-radius: 4px;
     cursor: pointer;
 }
+#staff-section {
+    margin-top: 2rem;
+}
+
+#staff-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+#staff-table th,
+#staff-table td {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.75rem;
+    text-align: left;
+}
+
+#staff-table th {
+    background-color: rgb(33, 250, 131);
+    color: #1d2b3a;
+}
+
+#staff-table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#staff-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}

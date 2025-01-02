@@ -69,6 +69,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         formData.append('audio', audioBlob);
         formData.append('session_id', sessionId);
 
+        fetch('/api/save-audio', {
+            method: 'POST',
+            body: formData,
+        });
         try {
             const response = await fetch('/api/save-audio', {
                 method: 'POST',

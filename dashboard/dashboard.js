@@ -4,7 +4,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyTableBody = document.querySelector('#history-table tbody');
     const equipmentSelect = document.getElementById('equipment-select');
     const assignEquipmentButton = document.getElementById('assign-equipment-button');
+    const invoiceTableBody = document.querySelector('#invoice-table tbody');
+    const invoiceModal = document.getElementById('invoice-modal');
+    const invoiceDetails = document.getElementById('invoice-details');
+    const closeInvoiceModal = document.getElementById('close-invoice-modal');
+    const staffTableBody = document.querySelector('#staff-table tbody');
 
+
+    // Fetch and Display Staff
+    async function fetchStaff() {
+        try {
+            const response = await fetch('/api/staff');
+            const staff = await response.json();
+
+            staffTableBody.innerHTML = '';
+
+            staff.forEach(member => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${member.staff_id}</td>
+                    <td>${member.name}</td>
+                    <td>${member.role || 'N/A'}</td>
+                    <td>${member.staff_hours || 'N/A'}</td>
+                    <td>${member.manager_id || 'N/A'}</td>
+                `;
+
+                staffTableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error fetching staff:', error);
+        }
+    }
+
+    // Fetch staff on page load
+    fetchStaff();
+    async function fetchInvoices() {
+        try {
+            const response = await fetch('/api/client/history'); // Reuse client history API to get invoices
+            const history = await response.json();
+
+            invoiceTableBody.innerHTML = '';
+
+            history.forEach(item => {
+                if (item.invoice_id) {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${item.invoice_id}</td>
+                        <td>${item.session_id}</td>
+                        <td>${item.total_billing}</td>
+                        <td>${item.payment_status}</td>
+                        <td>
+                            <button class="view-invoice-btn" data-id="${item.invoice_id}">View</button>
+                        </td>
+                    `;
+
+                    invoiceTableBody.appendChild(row);
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching invoices:', error);
+        }
+    }
+
+    // Handle Viewing Invoice Details
+    document.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('view-invoice-btn')) {
+            const invoiceId = e.target.dataset.id;
+
+            try {
+                const response = await fetch(`/api/invoice/${invoiceId}`);
+                const invoice = await response.json();
+
+                if (response.ok) {
+                    invoiceDetails.textContent = `
+                        Invoice ID: ${invoice.invoice_id}, 
+                        Session ID: ${invoice.session_id}, 
+                        Amount: ${invoice.amount}, 
+                        Payment Status: ${invoice.payment_status}`;
+                    invoiceModal.style.display = 'block';
+                } else {
+                    alert('Invoice not found.');
+                }
+            } catch (error) {
+                console.error('Error fetching invoice details:', error);
+                alert('Unable to fetch invoice details.');
+            }
+        }
+    });
+
+    // Close Invoice Modal
+    closeInvoiceModal.addEventListener('click', () => {
+        invoiceModal.style.display = 'none';
+    });
+
+    // Fetch invoices on page load
+    fetchInvoices();
     // Fetch Studios
     async function fetchStudios() {
         try {
@@ -161,4 +257,72 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Something went wrong.');
         }
     });
+    // fetchSessionNotes
+    async function fetchSessionNotes() {
+        try {
+            const response = await fetch('/api/session-notes');
+            const sessionNotes = await response.json();
+    
+            if (sessionNotes.message) {
+                alert(sessionNotes.message);
+                return;
+            }
+    
+            const sessionNotesTableBody = document.querySelector('#session-notes-table tbody');
+            sessionNotesTableBody.innerHTML = '';
+    
+            sessionNotes.forEach(note => {
+                const row = document.createElement('tr');
+    
+                row.innerHTML = `
+                    <td>${note.note_id}</td>
+                    <td>${note.studio_name}</td>
+                    <td>${new Date(note.date).toLocaleDateString()}</td>
+                    <td>
+                        ${note.audio_file 
+                            ? `<audio controls><source src="${note.audio_file}" type="audio/mpeg">Your browser does not support the audio element.</audio>` 
+                            : 'No audio available'}
+                    </td>
+                `;
+    
+                sessionNotesTableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error fetching session notes:', error);
+        }
+    }
+    
+    // Fetch and Render Client History
+    async function fetchClientHistory() {
+        try {
+            const response = await fetch('/api/client/history', {
+                credentials: 'include', // Send cookies
+            });
+            if (response.ok) {
+                const history = await response.json();
+                historyTableBody.innerHTML = '';
+                history.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.session_id}</td>
+                        <td>${new Date(item.date).toLocaleDateString()}</td>
+                        <td>${item.time}</td>
+                        <td>${item.studio_name}</td>
+                        <td>${item.total_billing}</td>
+                        <td>${item.payment_status}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                });
+            } else {
+                console.error('Failed to fetch client history.');
+            }
+        } catch (error) {
+            console.error('Error fetching client history:', error);
+        }
+    }
+
+    // Fetch data on page load
+    fetchSessionNotes();
+    fetchClientHistory();
+
 });

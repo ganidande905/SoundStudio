@@ -1,4 +1,3 @@
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
@@ -12,24 +11,32 @@ const app = express();
 const port = process.env.PORT || 5000; // Use port from .env or default to 5000
 
 // Initialize multer to handle form-data
-const upload = multer();
+
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 // Load .env file
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+app.use(
+    cors({
+        origin: 'http://localhost:5000', 
+        credentials: true, // Allow credentials (cookies)
+    })
+);
+
+
+
 app.use('/auth', express.static(path.join(__dirname, '../auth')));
 app.use('/dashboard', express.static(path.join(__dirname, '../dashboard')));
 app.use('/assets', express.static(path.join(__dirname, '../assets')));
 
 app.use(
     session({
-        
-        secret: process.env.SESSION_SECRET, // Use the secret from your .env file
+        secret: process.env.SESSION_SECRET || 'fallback_secret',
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: false, // Set true if using HTTPS
+            secure: false, // Set to true only if using HTTPS
+            maxAge: 3600000, // 1 hour
         },
     })
 );
@@ -132,6 +139,18 @@ app.post('/api/payment', async (req, res) => {
 
 
 // Save Audio Recording API
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '../uploads'));
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, `${uniqueSuffix}-${file.originalname}`);
+    },
+});
+
+const upload = multer({ storage });
+
 app.post('/api/save-audio', upload.single('audio'), async (req, res) => {
     const { session_id } = req.body;
 
@@ -139,7 +158,7 @@ app.post('/api/save-audio', upload.single('audio'), async (req, res) => {
         return res.status(400).json({ message: 'No audio file uploaded' });
     }
 
-    const audioFilePath = `/uploads/${req.file.filename}`; // Path to the uploaded file
+    const audioFilePath = `../uploads/${req.file.filename}`;
 
     try {
         // Check if a record already exists for the session
@@ -147,7 +166,15 @@ app.post('/api/save-audio', upload.single('audio'), async (req, res) => {
         const checkResult = await pool.query(checkQuery, [session_id]);
 
         if (checkResult.rows.length > 0) {
-            return res.status(400).json({ message: 'An audio file already exists for this session.' });
+            // Update the existing record
+            const updateQuery = `
+                UPDATE SESSION_NOTES 
+                SET Audio_File = $1 
+                WHERE Session_ID = $2 
+                RETURNING *;
+            `;
+            const updateResult = await pool.query(updateQuery, [audioFilePath, session_id]);
+            return res.status(200).json({ message: 'Audio updated successfully', note: updateResult.rows[0] });
         }
 
         // Insert the audio record
@@ -156,10 +183,8 @@ app.post('/api/save-audio', upload.single('audio'), async (req, res) => {
             VALUES ($1, $2)
             RETURNING *;
         `;
-        const values = [session_id, audioFilePath];
-        const result = await pool.query(insertQuery, values);
-
-        res.status(201).json({ message: 'Audio saved successfully', note: result.rows[0] });
+        const insertResult = await pool.query(insertQuery, [session_id, audioFilePath]);
+        res.status(201).json({ message: 'Audio saved successfully', note: insertResult.rows[0] });
     } catch (err) {
         console.error('Error saving audio:', err);
         res.status(500).json({ message: 'Internal server error' });
@@ -240,12 +265,17 @@ app.post('/login', async (req, res) => {
         if (!validPassword) {
             return res.status(401).json({ message: 'Invalid credentials!' });
         }
+
         if (!req.session) {
             return res.status(500).json({ message: 'Session not initialized' });
         }
+
         // Store client ID in session
         req.session.clientId = client.client_id;
         req.session.clientName = client.name;
+
+        // Log the session after login
+        console.log('Session after login:', req.session);
 
         res.status(200).json({
             message: 'Login successful!',
@@ -257,6 +287,7 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 app.get('/api/equipment', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM EQUIPMENT WHERE status = $1', ['Available']);
@@ -360,8 +391,10 @@ app.get('/api/client/history', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+// Route: Get Session Notes
 app.get('/api/session-notes', async (req, res) => {
-    const client_id = req.session.clientId; // Get client ID from the session
+    const client_id = req.session.clientId;
 
     if (!client_id) {
         return res.status(401).json({ message: 'Unauthorized. Please log in.' });
@@ -378,13 +411,16 @@ app.get('/api/session-notes', async (req, res) => {
         `;
         const result = await pool.query(query, [client_id]);
 
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'No session notes found for this client.' });
+        }
+
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error fetching session notes:', err);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 app.post('/api/book-session', async (req, res) => {
     const { session_id } = req.body;
@@ -395,14 +431,24 @@ app.post('/api/book-session', async (req, res) => {
     }
 
     try {
-        // Check if the session is already booked
+        // Check if the session is already booked by the same client
         const checkQuery = `
-            SELECT * FROM CLIENT_SESSION WHERE Session_ID = $1;
+            SELECT * FROM CLIENT_SESSION WHERE Client_ID = $1 AND Session_ID = $2;
         `;
-        const checkResult = await pool.query(checkQuery, [session_id]);
+        const checkResult = await pool.query(checkQuery, [client_id, session_id]);
 
         if (checkResult.rows.length > 0) {
-            return res.status(400).json({ message: 'Session is already booked.' });
+            return res.status(400).json({ message: 'You have already booked this session.' });
+        }
+
+        // Check if the session is already booked by another client
+        const checkSessionQuery = `
+            SELECT * FROM CLIENT_SESSION WHERE Session_ID = $1;
+        `;
+        const checkSessionResult = await pool.query(checkSessionQuery, [session_id]);
+
+        if (checkSessionResult.rows.length > 0) {
+            return res.status(400).json({ message: 'This session is already booked by another client.' });
         }
 
         // Link session to client and mark it as booked
@@ -426,6 +472,7 @@ app.post('/api/book-session', async (req, res) => {
 
 
 
+
 // Route: Get Invoice Details
 app.get('/api/invoice/:id', async (req, res) => {
     const { id } = req.params;
@@ -445,7 +492,3 @@ app.get('/api/invoice/:id', async (req, res) => {
     }
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}`);
-});

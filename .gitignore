@@ -2,6 +2,8 @@
 node_modules/
 soundstudio-backend/node_modules/
 
+# upload
+uploads/
 # Logs
 logs/
 *.log
