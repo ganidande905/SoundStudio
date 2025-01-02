@@ -67,6 +67,7 @@ app.get('/login', (req, res) => {
 app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, '../dashboard/dashboard.html'));
 });
+// Route: Serve Payment and Recording Page
 app.get('/record', (req, res) => {
     res.sendFile(path.join(__dirname, '../dashboard/payment-record.html'));
 });
@@ -113,7 +114,7 @@ app.post('/api/payment', async (req, res) => {
             return res.status(403).json({ message: 'You have not booked this session.' });
         }
 
-        // Process the payment (mocked for this example)
+        // Process the payment 
         const invoiceQuery = `
             INSERT INTO INVOICE (Payment_Status, Amount, Session_ID)
             VALUES ('Paid', $1, $2)
