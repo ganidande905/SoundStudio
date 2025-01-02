@@ -1,0 +1,36 @@
+# Node.js dependencies
+node_modules/
+soundstudio-backend/node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Built files
+dist/
+build/
+
+# Miscellaneous
+*.bak
+*.tmp
+*.swp
+*.swo
+*.swn
+
+# Package lock files (optional)
+package-lock.json
+yarn.lock

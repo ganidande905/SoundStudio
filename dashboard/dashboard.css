@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap');
+
+:root {
+    --green: rgb(33, 250, 131);
+    --red: rgb(252, 86, 108);
+    --dusky-green: rgb(6, 170, 94);
+    --darky: #1d2b3a;
+    --light-grey: rgb(105, 105, 105);
+    --white: #ffffff;
+    --table-border: rgba(255, 255, 255, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--dusky-green);
+    color: var(--white);
+    overflow-x: hidden;
+}
+
+header {
+    padding: 1rem;
+    background-color: var(--darky);
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2rem;
+    color: var(--green);
+}
+
+main {
+    padding: 2rem;
+}
+
+section {
+    margin-bottom: 2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--green);
+}
+
+select {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid var(--table-border);
+    border-radius: 5px;
+    background-color: var(--darky);
+    color: var(--white);
+}
+
+select option {
+    background-color: var(--darky);
+    color: var(--white);
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+table thead {
+    background-color: var(--darky);
+}
+
+table th, table td {
+    border: 1px solid var(--table-border);
+    padding: 0.75rem;
+    text-align: left;
+}
+
+table th {
+    background-color: var(--green);
+    color: var(--darky);
+}
+
+table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+table tr:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#pricing-section p {
+    font-size: 1rem;
+    background-color: var(--darky);
+    padding: 1rem;
+    border-radius: 5px;
+}
+/* Use the same CSS previously provided with additional styling for the modal */
+#invoice-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--darky);
+    color: var(--white);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+#close-invoice {
+    padding: 0.5rem 1rem;
+    background-color: var(--green);
+    color: var(--darky);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}

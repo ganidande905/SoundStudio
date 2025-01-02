@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/dashboard/dashboard.css">
+    <script defer src="/dashboard/dashboard.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Studio Dashboard</h1>
+        <button id="logout-button">Logout</button>
+    </header>
+    <main>
+        <!-- Studio Selection Section -->
+        <section id="studio-section">
+            <h2>Select a Studio</h2>
+            <select id="studio-select">
+                <option value="" disabled selected>Select a studio</option>
+            </select>
+        </section>
+        <section id="equipment-section">
+            <h2>Select Equipment</h2>
+            <select id="equipment-select">
+                <option value="" disabled selected>Select Equipment</option>
+            </select>
+            <button id="assign-equipment-button" >Assign Equipment</button>
+        </section>
+        
+        <!-- Available Sessions Section -->
+        <section id="session-section" style="display: none;">
+            <h2>Available Sessions</h2>
+            <table id="session-table">
+                <thead>
+                    <tr>
+                        <th>Session ID</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Total Billing</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Client History Section -->
+        <section id="client-history-section">
+            <h2>Client History</h2>
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Session ID</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Studio Name</th>
+                        <th>Total Billing</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        
+    </main>
+    <section id="session-notes-section">
+        <h2>Session Notes</h2>
+        <table id="session-notes-table">
+            <thead>
+                <tr>
+                    <th>Note ID</th>
+                    <th>Studio Name</th>
+                    <th>Session Date</th>
+                    <th>Content</th>
+                    <th>Audio</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
+    
+
+    <!-- Invoice Modal -->
+    <div id="invoice-modal" style="display: none;">
+        <h2>Invoice Details</h2>
+        <p id="invoice-details"></p>
+        <button id="close-invoice">Close</button>
+    </div>
+</body>
+</html>
