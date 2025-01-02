@@ -66,7 +66,20 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'));"
 Copy the generated key and use it as the value for `SESSION_SECRET` in your `.env` file.
 
 ---
+Create a `.env` file in the project root and set the following variables:
 
+```plaintext
+DB_USER=sound_user
+DB_PASSWORD=new_password
+DB_HOST=localhost
+DB_NAME=soundstudio
+DB_PORT=5432
+SESSION_SECRET=<your_generated_secret>
+```
+
+Use the `.env.example` file for reference.
+
+---
 ### 4. Set Up the Database
 
 1. **Create the Database**:
@@ -166,24 +179,7 @@ Copy the generated key and use it as the value for `SESSION_SECRET` in your `.en
 
 ---
 
-### 5. Configure Environment Variables
-
-Create a `.env` file in the project root and set the following variables:
-
-```plaintext
-DB_USER=sound_user
-DB_PASSWORD=new_password
-DB_HOST=localhost
-DB_NAME=soundstudio
-DB_PORT=5432
-SESSION_SECRET=<your_generated_secret>
-```
-
-Use the `.env.example` file for reference.
-
----
-
-### 6. Start the Server
+### 5. Start the Server
 
 Run the server:
 

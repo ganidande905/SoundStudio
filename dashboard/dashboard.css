@@ -98,7 +98,6 @@ table tr:hover {
     padding: 1rem;
     border-radius: 5px;
 }
-/* Use the same CSS previously provided with additional styling for the modal */
 #invoice-modal {
     position: fixed;
     top: 50%;
