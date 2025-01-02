@@ -295,34 +295,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch and Render Client History
     async function fetchClientHistory() {
         try {
-            const response = await fetch('/api/client/history', {
-                credentials: 'include', // Send cookies
-            });
-            if (response.ok) {
-                const history = await response.json();
+            const response = await fetch('/api/client/history');
+            const history = await response.json();
+    
+            if (Array.isArray(history)) {
                 historyTableBody.innerHTML = '';
                 history.forEach(item => {
+                    const isPaid = item.payment_status === 'Paid';
+                    const actionButton = isPaid
+                        ? `<span>Paid</span>`
+                        : `<button class="pay-record-btn" data-id="${item.session_id}">Pay and Record</button>`;
+    
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${item.session_id}</td>
-                        <td>${new Date(item.date).toLocaleDateString()}</td>
+                        <td>${item.date}</td>
                         <td>${item.time}</td>
                         <td>${item.studio_name}</td>
                         <td>${item.total_billing}</td>
-                        <td>${item.payment_status}</td>
+                        <td>${actionButton}</td>
                     `;
+    
                     historyTableBody.appendChild(row);
                 });
             } else {
-                console.error('Failed to fetch client history.');
+                console.error('Invalid history data:', history);
+                alert('Failed to fetch client history.');
             }
         } catch (error) {
-            console.error('Error fetching client history:', error);
+            console.error('Failed to fetch client history.', error);
+            alert('Something went wrong while fetching client history.');
         }
     }
-
-    // Fetch data on page load
-    fetchSessionNotes();
-    fetchClientHistory();
+    
 
 });

@@ -9,7 +9,12 @@ const multer = require('multer');
 
 const app = express();
 const port = process.env.PORT || 5000; // Use port from .env or default to 5000
+console.log('Starting the server...');
 
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 // Initialize multer to handle form-data
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
@@ -361,7 +366,7 @@ app.post('/logout', (req, res) => {
 
 // Route: Get Client History
 app.get('/api/client/history', async (req, res) => {
-    const client_id = req.session.clientId; // Get the client ID from the session
+    const client_id = req.session.clientId;
 
     if (!client_id) {
         return res.status(401).json({ message: 'Unauthorized. Please log in.' });

@@ -5,15 +5,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const saveAudioButton = document.getElementById('save-audio');
     const audioPreview = document.getElementById('audio-preview');
     const recordingSection = document.getElementById('recording-section');
+    const backToDashboardButton = document.getElementById('back-to-dashboard');
 
     let mediaRecorder;
     let audioChunks = [];
     const sessionId = new URLSearchParams(window.location.search).get('session_id');
 
     if (!sessionId) {
-        alert('No session selected.');
+        alert('No session selected. Redirecting to the dashboard.');
+        window.location.href = '/dashboard';
         return;
     }
+
+    // Default State
+    recordingSection.style.display = 'none';
+    stopRecordingButton.style.display = 'none';
+    saveAudioButton.style.display = 'none';
+    audioPreview.style.display = 'none';
 
     // Payment
     payNowButton.addEventListener('click', async () => {
@@ -28,18 +36,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert(data.message);
                 recordingSection.style.display = 'block';
             } else {
-                alert(data.message || 'Payment failed');
+                alert(data.message || 'Payment failed.');
             }
         } catch (error) {
             console.error('Error during payment:', error);
+            alert('Something went wrong. Please try again.');
         }
     });
 
     // Start Recording
-    startRecordingButton.addEventListener('click', async () => {
+// Start Recording
+startRecordingButton.addEventListener('click', async () => {
+    try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+        audioChunks = []; // Reset audio chunks
+
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
 
         mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
@@ -53,7 +68,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         mediaRecorder.start();
         startRecordingButton.style.display = 'none';
         stopRecordingButton.style.display = 'block';
-    });
+    } catch (error) {
+        console.error('Error accessing microphone:', error);
+        if (error.name === 'NotFoundError') {
+            alert('No microphone found. Please connect one and try again.');
+        } else {
+            alert('Unable to access microphone. Please check permissions and try again.');
+        }
+    }
+});
+
 
     // Stop Recording
     stopRecordingButton.addEventListener('click', () => {
@@ -69,10 +93,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         formData.append('audio', audioBlob);
         formData.append('session_id', sessionId);
 
-        fetch('/api/save-audio', {
-            method: 'POST',
-            body: formData,
-        });
         try {
             const response = await fetch('/api/save-audio', {
                 method: 'POST',
@@ -80,16 +100,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             const data = await response.json();
             if (response.ok) {
-                alert('Audio saved successfully');
+                alert('Audio saved successfully.');
             } else {
-                alert(data.message || 'Failed to save audio');
+                alert(data.message || 'Failed to save audio.');
             }
         } catch (error) {
             console.error('Error saving audio:', error);
+            alert('Something went wrong. Please try again.');
         }
     });
-});
-document.getElementById('back-to-dashboard').addEventListener('click', () => {
-    window.location.href = '/dashboard';
-});
 
+    // Back to Dashboard
+    backToDashboardButton.addEventListener('click', () => {
+        window.location.href = '/dashboard';
+    });
+});
