@@ -1,4 +1,4 @@
-<img width="1510" alt="Screenshot 2025-02-23 at 20 07 14" src="https://github.com/user-attachments/assets/a8c11d03-6d08-4dc0-b1d8-01ad02164a97" /># SoundStudio Backend
+# SoundStudio Backend
 
 A music production backend server built with Node.js and PostgreSQL, supporting client session management, studio bookings, audio recording, and equipment assignments.
 
