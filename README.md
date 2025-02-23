@@ -1,4 +1,4 @@
-# SoundStudio Backend
+<img width="1510" alt="Screenshot 2025-02-23 at 20 07 14" src="https://github.com/user-attachments/assets/a8c11d03-6d08-4dc0-b1d8-01ad02164a97" /># SoundStudio Backend
 
 A music production backend server built with Node.js and PostgreSQL, supporting client session management, studio bookings, audio recording, and equipment assignments.
 
@@ -217,3 +217,9 @@ The server will start at [http://localhost:5000](http://localhost:5000).
 - Use `npm install` to install all required dependencies.
 - Database setup must be completed before starting the server.
 - The application uses PostgreSQL; ensure it is running before executing any queries.
+
+## Web View
+<img width="1512" alt="Screenshot 2025-02-23 at 20 55 50" src="https://github.com/user-attachments/assets/3ddac820-af5e-4966-91fc-95c26f417600" />
+<img width="1512" alt="Screenshot 2025-02-23 at 20 55 37" src="https://github.com/user-attachments/assets/8a66da88-0c94-41ba-8b88-a1c5d72f203a" />
+<img width="1512" alt="Screenshot 2025-02-23 at 20 55 19" src="https://github.com/user-attachments/assets/02486729-416b-4567-8f51-398ea4c063a0" />
+
